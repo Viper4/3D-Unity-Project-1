@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Dynamic;
+using UnityEditor.UI;
+using System.Runtime.InteropServices;
 
 public static class Noise
 {
-
 	public enum NormalizeMode { Local, Global };
 
 	public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, NoiseSettings settings, Vector2 sampleCentre)
@@ -21,6 +23,7 @@ public static class Noise
 		{
 			float offsetX = prng.Next(-100000, 100000) + settings.offset.x + sampleCentre.x;
 			float offsetY = prng.Next(-100000, 100000) - settings.offset.y - sampleCentre.y;
+
 			octaveOffsets[i] = new Vector2(offsetX, offsetY);
 
 			maxPossibleHeight += amplitude;
@@ -101,7 +104,9 @@ public class NoiseSettings
 	public float persistance = .6f;
 	public float lacunarity = 2;
 
+	public bool randomizeSeed;
 	public int seed;
+	
 	public Vector2 offset;
 
 	public void ValidateValues()

@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
+using System;
 
 public static class SaveSystem
 {
@@ -38,43 +39,41 @@ public static class SaveSystem
     }
 
     // Save Player
-    public static void SavePlayer(PlayerSystem player)
+    public static void SaveData(PlayerSystem player)
     {
         string path = "Assets/Saves/player.saves";
         BinaryFormatter formatter = new BinaryFormatter();
         FileStream stream = new FileStream(path, FileMode.Create);
 
         GameData data = new GameData(player);
-
         formatter.Serialize(stream, data);
         stream.Close();
     }
 
     // Load Player
-    public static GameData LoadPlayer(PlayerSystem player)
+    public static GameData LoadData(PlayerSystem player)
     {
         string path = "Assets/Saves/player.saves";
         BinaryFormatter formatter = new BinaryFormatter();
-        FileStream stream = new FileStream(path, FileMode.Open);
-
+        FileStream stream = new FileStream(path, FileMode.OpenOrCreate);
         GameData data;
 
         if (File.Exists(path))
         {
-            if (new FileInfo(path).Length != 0)
+            if (stream.Length != 0)
             {
                 data = formatter.Deserialize(stream) as GameData;
                 stream.Close();
+
+                return data;
             }
             else
             {
                 Debug.LogError("Save file is empty in " + path);
-                data = new GameData(player);
-                formatter.Serialize(stream, data);
                 stream.Close();
-            }
 
-            return data;
+                return null;
+            }
         }
         else
         {

@@ -12,7 +12,7 @@ public class HideOnDistance : MonoBehaviour
 
     public float visibilityDst = 60;
 
-    // Start is called before the first frame update
+    // Called before the first frame update
     void Awake()
     {
         if (viewer == null)
@@ -46,6 +46,10 @@ public class HideOnDistance : MonoBehaviour
                 else if (child.gameObject.activeSelf)
                 {
                     child.gameObject.SetActive(false);
+                }
+                if (dstToViewer > visibilityDst * 5f)
+                {
+                    Destroy(child.gameObject);
                 }
                 viewerPositionOld = viewerPosition;
             }

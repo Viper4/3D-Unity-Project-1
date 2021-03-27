@@ -15,7 +15,7 @@ public class CameraControl : MonoBehaviour
 
     public float perspective = 2;
 
-    public float rotateSpeed;
+    public float degreesPerSecond;
 
     float distanceFromTarget;
     float yaw;
@@ -23,47 +23,39 @@ public class CameraControl : MonoBehaviour
 
     GameObject playerModel;
     GameObject healthBar;
-    public Canvas firstPerson;
 
-    private void Awake()
+    void Awake()
     {
-        switch (transform.name)
+        GameData data = SaveSystem.LoadData(FindObjectOfType<PlayerSystem>());
+
+        if (data.fov != 0)
         {
-            case "PlayerCamera":
-                GameData data = SaveSystem.LoadPlayer(GameObject.Find("Player").GetComponent<PlayerSystem>());
-                perspective = data.perspective;
-                mouseSensitivity = data.mouseSensitivity;
-
-                if (data.fov != 0)
-                {
-                    GetComponent<Camera>().fieldOfView = data.fov;
-                }
-
-                playerModel = GameObject.Find("Model");
-                healthBar = GameObject.Find("Bar");
-
-                distanceFromTarget = dstFromTarget;
-                break;
-            case "StartCamera":
-                data = SaveSystem.LoadPlayer(GetComponent<PlayerSystem>());
-                transform.GetComponent<Camera>().fieldOfView = data.fov;
-
-                if (data.fov != 0)
-                {
-                    GetComponent<Camera>().fieldOfView = data.fov;
-                }
-                break;
+            GetComponent<Camera>().fieldOfView = data.fov;
         }
-        
+
+        distanceFromTarget = dstFromTarget;
+
         if (lockCursor)
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
+
+        switch (transform.name)
+        {
+            case "PlayerCamera":
+                //perspective = data.perspective;
+                //mouseSensitivity = data.mouseSensitivity;
+
+                playerModel = GameObject.Find("Model");
+                healthBar = GameObject.Find("Bar");
+
+                break;
+        }
     }
 
     // Update is called once per frame
-    void LateUpdate()
+    void Update()
     {
         switch (transform.name)
         {
@@ -76,7 +68,6 @@ public class CameraControl : MonoBehaviour
 
                         playerModel.SetActive(false);
                         healthBar.SetActive(false);
-                        firstPerson.gameObject.SetActive(true);
 
                         break;
                     case 1:
@@ -89,7 +80,6 @@ public class CameraControl : MonoBehaviour
 
                         playerModel.SetActive(true);
                         healthBar.SetActive(true);
-                        firstPerson.gameObject.SetActive(false);
 
                         break;
                     case 2:
@@ -98,7 +88,6 @@ public class CameraControl : MonoBehaviour
 
                         playerModel.SetActive(true);
                         healthBar.SetActive(true);
-                        firstPerson.gameObject.SetActive(false);
 
                         break;
                 }
@@ -113,7 +102,9 @@ public class CameraControl : MonoBehaviour
                 transform.position = target.position - transform.forward * distanceFromTarget;
                 break;
             case "StartCamera":
-                transform.Rotate(0, 25 * Time.deltaTime, 0);
+                transform.Rotate(new Vector3(degreesPerSecond * Time.deltaTime, degreesPerSecond * Time.deltaTime, degreesPerSecond * Time.deltaTime));
+
+                transform.position = target.position - transform.forward * distanceFromTarget;
                 break;
         }
     }

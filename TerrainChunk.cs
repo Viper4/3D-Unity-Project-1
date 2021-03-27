@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class TerrainChunk
 {
@@ -42,9 +41,7 @@ public class TerrainChunk
 		Vector2 position = coord * meshSettings.meshWorldSize;
 		bounds = new Bounds(position, Vector2.one * meshSettings.meshWorldSize);
 
-
 		meshObject = new GameObject("Terrain Chunk");
-		meshObject.tag = "ValidSpawn";
 		meshRenderer = meshObject.AddComponent<MeshRenderer>();
 		meshFilter = meshObject.AddComponent<MeshFilter>();
 		meshCollider = meshObject.AddComponent<MeshCollider>();
@@ -128,8 +125,6 @@ public class TerrainChunk
 						lodMesh.RequestMesh(heightMap, meshSettings);
 					}
 				}
-
-
 			}
 
 			if (wasVisible != visible)
@@ -164,6 +159,8 @@ public class TerrainChunk
 				{
 					meshCollider.sharedMesh = lodMeshes[colliderLODIndex].mesh;
 					hasSetCollider = true;
+					meshObject.tag = "ValidSpawn";
+
 				}
 			}
 		}

@@ -4,9 +4,9 @@ public class PrefabGenerator : MonoBehaviour
 {
     public PrefabTypes[] prefabTypes;
 
-    float minAmountMultiplier;
-    float maxAmountMultiplier;
-    float chanceMultiplier;
+    float minAmountMultiplier = 1;
+    float maxAmountMultiplier = 1;
+    float chanceMultiplier = 1;
 
     public Transform viewer;
 
@@ -16,10 +16,9 @@ public class PrefabGenerator : MonoBehaviour
     [HideInInspector]
     public int difficulty;
 
-    // Prefabs sometimes wont randomize on awake
     void Awake()
     {
-        GameData data = SaveSystem.LoadPlayer(GameObject.Find("Player").GetComponent<PlayerSystem>());
+        GameData data = SaveSystem.LoadData(GameObject.Find("Player").GetComponent<PlayerSystem>());
         difficulty = data.difficulty;
 
         if (viewer == null)
@@ -53,12 +52,10 @@ public class PrefabGenerator : MonoBehaviour
                             for (int k = 0; k < prefabTypes[i].prefabList.Length; k++) // For each prefabList in prefabTypes
                             {
                                 DifficultyScaling(prefabTypes, i);
-
-                                float randomValue = Random.value;
-
-                                if (randomValue <= prefabTypes[i].prefabList[k].chance)
+                                
+                                if (Random.value + 0.0001 <= prefabTypes[i].prefabList[k].chance * chanceMultiplier)
                                 {
-                                    int randomAmount = Random.Range(prefabTypes[i].prefabList[k].minAmount, prefabTypes[i].prefabList[k].maxAmount);
+                                    int randomAmount = Random.Range(Mathf.RoundToInt(prefabTypes[i].prefabList[k].minAmount * minAmountMultiplier), Mathf.RoundToInt(prefabTypes[i].prefabList[k].maxAmount * maxAmountMultiplier));
                                     for (int l = 0; l <= randomAmount; l++)
                                     {
                                         Renderer renderer = validSpawn.GetComponent<Renderer>();
@@ -66,20 +63,31 @@ public class PrefabGenerator : MonoBehaviour
                                         float randomX = Random.Range(renderer.bounds.min.x, renderer.bounds.max.x);
                                         float randomZ = Random.Range(renderer.bounds.min.z, renderer.bounds.max.z);
                                         float randomScale = Random.Range(prefabTypes[i].prefabList[k].minScale, prefabTypes[i].prefabList[k].maxScale);
-                                        if (Physics.Raycast(new Vector3(randomX, renderer.bounds.max.y - 5f, randomZ), -Vector3.up, out RaycastHit hit) && hit.transform.CompareTag("ValidSpawn"))
+                                        Physics.Raycast(new Vector3(randomX, renderer.bounds.max.y - 5f, randomZ), Vector3.down, out RaycastHit hit);
+                                        if (Physics.Raycast(new Vector3(randomX, renderer.bounds.max.y - 5f, randomZ), Vector3.down, out hit))
                                         {
                                             GameObject newPrefab = Instantiate(prefabTypes[i].prefabList[k].prefab, hit.point, Quaternion.Euler(0, Random.Range(prefabTypes[i].prefabList[k].minRotationY, prefabTypes[i].prefabList[k].maxRotationY), 0), transform.GetChild(i));
+
                                             newPrefab.tag = prefabTypes[i].type;
-                                            newPrefab.transform.localScale = new Vector3(randomScale, randomScale, randomScale);
+                                            if (newPrefab.CompareTag("Healer"))
+                                            {
+                                                newPrefab.transform.localScale = new Vector3(randomScale, randomScale / 4f, randomScale);
+
+                                            }
+                                            else
+                                            {
+                                                newPrefab.transform.localScale = new Vector3(randomScale, randomScale, randomScale);
+
+                                            }
                                             newPrefab.gameObject.SetActive(false);
                                         }
                                     }
                                 }
                             }
                         }
-                        
-                        validSpawn.tag = "Untagged";
                     }
+
+                    validSpawn.tag = "Untagged";
                 }
             }
 

@@ -1,13 +1,10 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class MapPreview : MonoBehaviour
 {
-
 	public Renderer textureRender;
 	public MeshFilter meshFilter;
 	public MeshRenderer meshRenderer;
-
 
 	public enum DrawMode { NoiseMap, Mesh, FalloffMap };
 	public DrawMode drawMode;
@@ -18,14 +15,9 @@ public class MapPreview : MonoBehaviour
 
 	public Material terrainMaterial;
 
-
-
 	[Range(0, MeshSettings.numSupportedLODs - 1)]
 	public int editorPreviewLOD;
 	public bool autoUpdate;
-
-
-
 
 	public void DrawMapInEditor()
 	{
@@ -47,10 +39,6 @@ public class MapPreview : MonoBehaviour
 		}
 	}
 
-
-
-
-
 	public void DrawTexture(Texture2D texture)
 	{
 		textureRender.sharedMaterial.mainTexture = texture;
@@ -62,13 +50,14 @@ public class MapPreview : MonoBehaviour
 
 	public void DrawMesh(MeshData meshData)
 	{
-		meshFilter.sharedMesh = meshData.CreateMesh();
+		if (meshFilter != null)
+        {
+			meshFilter.sharedMesh = meshData.CreateMesh();
+		}
 
 		textureRender.gameObject.SetActive(false);
 		meshFilter.gameObject.SetActive(true);
 	}
-
-
 
 	void OnValuesUpdated()
 	{

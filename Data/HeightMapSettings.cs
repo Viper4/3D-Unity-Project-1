@@ -29,12 +29,10 @@ public class HeightMapSettings : UpdatableData
 	}
 
 #if UNITY_EDITOR
-
 	protected override void OnValidate()
 	{
 		noiseSettings.ValidateValues();
 		base.OnValidate();
 	}
 #endif
-
 }

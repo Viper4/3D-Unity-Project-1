@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 public class TerrainGenerator : MonoBehaviour
@@ -26,7 +25,7 @@ public class TerrainGenerator : MonoBehaviour
 	Dictionary<Vector2, TerrainChunk> terrainChunkDictionary = new Dictionary<Vector2, TerrainChunk>();
 	List<TerrainChunk> visibleTerrainChunks = new List<TerrainChunk>();
 
-	void Start()
+	void Awake()
 	{
 		textureSettings.ApplyToMaterial(mapMaterial);
 		textureSettings.UpdateMeshHeights(mapMaterial, heightMapSettings.minHeight, heightMapSettings.maxHeight);
@@ -104,7 +103,6 @@ public class TerrainGenerator : MonoBehaviour
 			visibleTerrainChunks.Remove(chunk);
 		}
 	}
-
 }
 
 [System.Serializable]

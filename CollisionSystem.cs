@@ -19,12 +19,6 @@ public class CollisionSystem : MonoBehaviour
     void Awake()
     {
         playerSystem = GameObject.Find("Player").GetComponent<PlayerSystem>();
-
-    }
-
-    void Update()
-    {
-        keys = playerSystem.keys;
     }
 
     public float GetHealthPercent()
@@ -151,6 +145,8 @@ public class CollisionSystem : MonoBehaviour
 
     void PlayerOnCollide(Collider collider)
     {
+        keys = playerSystem.keys;
+
         switch (transform.tag)
         {
             case "Friendly":
@@ -158,6 +154,7 @@ public class CollisionSystem : MonoBehaviour
                 {
                     case "Hostile":
                         Popup(keys["Attack"].ToString() + " to attack");
+
                         if (Input.GetKeyDown(keys["Attack"]))
                         {
                             if (collider.GetComponent<CollisionSystem>().health - attackAmount <= 0)
@@ -175,6 +172,7 @@ public class CollisionSystem : MonoBehaviour
                 {
                     case "Friendly":
                         Popup(keys["Attack"].ToString() + " to attack");
+
                         if (Input.GetKeyDown(keys["Attack"]))
                         {
                             if (collider.GetComponent<CollisionSystem>().health - attackAmount <= 0)
@@ -194,13 +192,14 @@ public class CollisionSystem : MonoBehaviour
                 switch (collider.name)
                 {
                     case "Campfire1":
+                        Popup(keys["Interact"].ToString() + " to toggle");
+
                         Transform campfire = collider.transform.Find("Campfire");
                         if (campfire.gameObject.activeSelf && playerSystem.kills != 0)
                         {
                             playerSystem.points = playerSystem.points + playerSystem.kills / 2;
                             playerSystem.kills = 0;
                         }
-                        Popup(keys["Interact"].ToString() + " to interact");
                         if (Input.GetKeyDown(keys["Interact"]))
                         {
                             if (campfire.gameObject.activeSelf)
@@ -220,6 +219,7 @@ public class CollisionSystem : MonoBehaviour
                 {
                     case "Door1":
                         Popup(keys["Interact"].ToString() + " to open/close");
+
                         if (Input.GetKeyDown(keys["Interact"]))
                         {
                             Vector3 direction = new Vector3(collider.transform.parent.position.x, transform.position.y, collider.transform.parent.position.z) - transform.position;
@@ -232,6 +232,7 @@ public class CollisionSystem : MonoBehaviour
                 break;
             case "Healer":
                 Popup(keys["Heal"].ToString() + " to heal");
+
                 if (Input.GetKeyDown(keys["Heal"]))
                 {
                     healAmount = collider.GetComponent<CollisionSystem>().healAmount;

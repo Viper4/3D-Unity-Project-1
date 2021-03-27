@@ -15,7 +15,7 @@ public class Displays : MonoBehaviour
         float health = GetComponentInParent<CollisionSystem>().health;
         float maxHealth = GetComponentInParent<CollisionSystem>().maxHealth;
 
-        transform.LookAt(Camera.main.transform);
+        transform.rotation = Camera.main.transform.rotation;
         redBar.localScale = new Vector3(health / maxHealth, 1, 1);
 
         if (transform.parent.name == "Player")

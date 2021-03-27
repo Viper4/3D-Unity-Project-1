@@ -1,13 +1,9 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public static class MeshGenerator
 {
-
-
 	public static MeshData GenerateTerrainMesh(float[,] heightMap, MeshSettings meshSettings, int levelOfDetail)
 	{
-
 		int meshSimplificationIncrement = (levelOfDetail == 0) ? 1 : levelOfDetail * 2;
 
 		int borderedSize = heightMap.GetLength(0);
@@ -16,7 +12,6 @@ public static class MeshGenerator
 
 		float topLeftX = (meshSizeUnsimplified - 1) / -2f;
 		float topLeftZ = (meshSizeUnsimplified - 1) / 2f;
-
 
 		int verticesPerLine = (meshSize - 1) / meshSimplificationIncrement + 1;
 

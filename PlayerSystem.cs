@@ -33,6 +33,7 @@ public class PlayerSystem : MonoBehaviour
     Transform cameraT;
     CharacterController controller;
 
+    // UI
     public Canvas gameMenu, optionsMenu, controlsMenu, gameOver, popup;
     public Text up, left, down, right, run, jump, attack, heal, interact;
     GameObject currentKey;
@@ -71,31 +72,11 @@ public class PlayerSystem : MonoBehaviour
             UISelection = "UI0";
         }
 
-        keys.Add("Up", KeyCode.W);
-        keys.Add("Left", KeyCode.A);
-        keys.Add("Down", KeyCode.S);
-        keys.Add("Right", KeyCode.D);
-        keys.Add("Run", KeyCode.LeftShift);
-        keys.Add("Jump", KeyCode.Space);
-        keys.Add("Attack", KeyCode.Mouse0);
-        keys.Add("Heal", KeyCode.Mouse1);
-        keys.Add("Interact", KeyCode.E);
-
-        up.text = keys["Up"].ToString();
-        left.text = keys["Left"].ToString();
-        down.text = keys["Down"].ToString();
-        right.text = keys["Right"].ToString();
-        run.text = keys["Run"].ToString();
-        jump.text = keys["Jump"].ToString();
-        attack.text = keys["Attack"].ToString();
-        heal.text = keys["Heal"].ToString();
-        interact.text = keys["Interact"].ToString();
-
         currentKey = null;
 
         CheckUI();
-
     }
+
     void Update()
     {
         switch (SceneManager.GetActiveScene().name)
@@ -120,7 +101,7 @@ public class PlayerSystem : MonoBehaviour
                     kills = 0;
                     points = 0;
 
-                    SavePlayer();
+                    SaveSystem.SaveData(this);
                 }
                 // Input
                 Vector2 input = new Vector2(GetInputAxis("Horizontal"), GetInputAxis("Vertical"));
@@ -166,15 +147,9 @@ public class PlayerSystem : MonoBehaviour
         }
     }
 
-    // SaveSystem
-    void SavePlayer()
-    {
-        SaveSystem.SavePlayer(this);
-    }
-
     void LoadPlayer()
     {
-        GameData data = SaveSystem.LoadPlayer(this);
+        GameData data = SaveSystem.LoadData(this);
 
         difficulty = data.difficulty;
         perspective = data.perspective;
@@ -183,6 +158,36 @@ public class PlayerSystem : MonoBehaviour
         kills = data.kills;
         points = data.points;
         highScore = data.highScore;
+
+        keys.Clear();
+        for (int i = 0; i < data.playerKeys.Count; i++) // Count of playerKeys should equal playerValues. If not, setup of the keys and values are incorrect
+        {
+            keys.Add(data.playerKeys[i], data.playerValues[i]);
+        }
+        if (keys.Count == 0)
+        {
+            keys.Add("Up", KeyCode.W);
+            keys.Add("Left", KeyCode.A);
+            keys.Add("Down", KeyCode.S);
+            keys.Add("Right", KeyCode.D);
+            keys.Add("Run", KeyCode.LeftShift);
+            keys.Add("Jump", KeyCode.Space);
+            keys.Add("Attack", KeyCode.Mouse0);
+            keys.Add("Heal", KeyCode.Mouse1);
+            keys.Add("Interact", KeyCode.E);
+
+            SaveSystem.SaveData(this);
+        }
+        up.text = keys["Up"].ToString();
+        left.text = keys["Left"].ToString();
+        down.text = keys["Down"].ToString();
+        right.text = keys["Right"].ToString();
+        run.text = keys["Run"].ToString();
+        jump.text = keys["Jump"].ToString();
+        attack.text = keys["Attack"].ToString();
+        heal.text = keys["Heal"].ToString();
+        interact.text = keys["Interact"].ToString();
+        
         difficultyDropdown.value = difficulty;
         perspectiveDropdown.value = perspective;
         mouseSensitivitySlider.value = mouseSensitivity;
@@ -288,7 +293,7 @@ public class PlayerSystem : MonoBehaviour
     // UI
     private void OnGUI()
     {
-        if (currentKey != null && currentKey.GetComponent<Target>())
+        if (currentKey != null)
         {
             Event e = Event.current;
             if (e.isKey && e.keyCode != KeyCode.Escape)
@@ -344,7 +349,7 @@ public class PlayerSystem : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
             gameMenu.gameObject.SetActive(true);
             Cursor.visible = true;
-            SaveSystem.SavePlayer(this);
+            SaveSystem.SaveData(this);
             Time.timeScale = 0;
         }
     }
@@ -353,8 +358,6 @@ public class PlayerSystem : MonoBehaviour
     public void UIGameObjects(GameObject current)
     {
         Transform currentParent = current.transform.parent;
-
-        //int deleteSelection = -1;
 
         // Other UI elements
         switch (current.name)
@@ -379,7 +382,7 @@ public class PlayerSystem : MonoBehaviour
                 ToggleSelectors(false);
                 break;*/
             case "Done":
-                SaveSystem.SavePlayer(this);
+                SaveSystem.SaveData(this);
 
                 cameraT.GetComponent<Camera>().fieldOfView = fov;
                 cameraT.GetComponent<CameraControl>().perspective = perspective;
@@ -460,15 +463,7 @@ public class PlayerSystem : MonoBehaviour
                 sceneLoader.GetComponent<SceneLoader>().LoadScene("Scene0");
                 break;
             case "Save&Quit":
-                if (points > highScore)
-                {
-                    highScore = points;
-                }
-
-                kills = 0;
-                points = 0;
-
-                SaveSystem.SavePlayer(this);
+                SaveSystem.SaveData(this);
 
                 //SaveSystem.SaveScene(GameObject.FindWithTag("Master"));
                 sceneLoader.GetComponent<SceneLoader>().LoadScene("TitleScreen");
@@ -521,7 +516,7 @@ public class PlayerSystem : MonoBehaviour
                 switch (currentParent.name)
                 {
                     case "ConfirmExit":
-                        SaveSystem.SavePlayer(this);
+                        SaveSystem.SaveData(this);
                         Application.Quit();
                         break;
                         /*case "ConfirmDelete":
@@ -547,13 +542,14 @@ public class PlayerSystem : MonoBehaviour
                 }
                 break;
         }
-        currentKey = current;
+        if (current.gameObject.GetComponent<Target>())
+        {
+            currentKey = current;
+        }
     }
 
     public void CheckUI()
     {
-        SaveSystem.LoadPlayer(this);
-
         switch (UISelection)
         {
             case "UI0":
